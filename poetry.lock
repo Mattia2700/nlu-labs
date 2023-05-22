@@ -185,18 +185,6 @@ files = [
 pycparser = "*"
 
 [[package]]
-name = "chardet"
-version = "5.1.0"
-description = "Universal encoding detector for Python 3"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "chardet-5.1.0-py3-none-any.whl", hash = "sha256:362777fb014af596ad31334fde1e8c327dfdb076e1960d1694662d46a6917ab9"},
-    {file = "chardet-5.1.0.tar.gz", hash = "sha256:0d62712b956bc154f85fb0a266e2a3c5913c2967e00348701b32411d6def31e5"},
-]
-
-[[package]]
 name = "charset-normalizer"
 version = "3.1.0"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
@@ -383,26 +371,6 @@ files = [
 ]
 
 [[package]]
-name = "dataproperty"
-version = "0.55.1"
-description = "Python library for extract property from data."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "DataProperty-0.55.1-py3-none-any.whl", hash = "sha256:54a5c1440b0b5ab2e902c29b451dd408dadefd93232ae21672e6f1305698f802"},
-    {file = "DataProperty-0.55.1.tar.gz", hash = "sha256:08113748e164c17d60b9e66c256cbabec0c654b7aaf5e8441c4ec4ee51d5c921"},
-]
-
-[package.dependencies]
-mbstrdecoder = ">=1.0.0,<2"
-typepy = {version = ">=1.2.0,<2", extras = ["datetime"]}
-
-[package.extras]
-logging = ["loguru (>=0.4.1,<1)"]
-test = ["pytest (>=6.0.1)", "pytest-md-report (>=0.3)", "tcolorpy (>=0.1.2)"]
-
-[[package]]
 name = "debugpy"
 version = "1.6.7"
 description = "An implementation of the Debug Adapter Protocol for Python"
@@ -468,25 +436,6 @@ files = [
     {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
-
-[[package]]
-name = "importlib-metadata"
-version = "3.10.1"
-description = "Read metadata from Python packages"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "importlib_metadata-3.10.1-py3-none-any.whl", hash = "sha256:2ec0faae539743ae6aaa84b49a169670a465f7f5d64e6add98388cc29fd1f2f6"},
-    {file = "importlib_metadata-3.10.1.tar.gz", hash = "sha256:c9356b657de65c53744046fa8f7358afe0714a1af7d570c00c3835c2d724a7c1"},
-]
-
-[package.dependencies]
-zipp = ">=0.5"
-
-[package.extras]
-docs = ["jaraco.packaging (>=8.2)", "rst.linker (>=1.9)", "sphinx"]
-testing = ["flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pep517", "pyfakefs", "pytest (>=4.6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.0.1)", "pytest-flake8", "pytest-mypy"]
 
 [[package]]
 name = "ipykernel"
@@ -746,24 +695,6 @@ files = [
 traitlets = "*"
 
 [[package]]
-name = "mbstrdecoder"
-version = "1.1.2"
-description = "multi-byte character string decoder"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "mbstrdecoder-1.1.2-py3-none-any.whl", hash = "sha256:27dd749eb46484a3d032aa1cea80743cd094922245764579e0153f70813845de"},
-    {file = "mbstrdecoder-1.1.2.tar.gz", hash = "sha256:c3a258e5e00192281eb774c00637f68d2d460854cea0c5c820aa241732aa0b51"},
-]
-
-[package.dependencies]
-chardet = ">=3.0.4,<6"
-
-[package.extras]
-test = ["Faker (>=1.0.2)", "pytest (>=6.0.1)", "pytest-md-report (>=0.1)"]
-
-[[package]]
 name = "murmurhash"
 version = "1.0.9"
 description = "Cython bindings for MurmurHash"
@@ -973,21 +904,6 @@ qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
-name = "pathvalidate"
-version = "2.5.2"
-description = "pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pathvalidate-2.5.2-py3-none-any.whl", hash = "sha256:e39a4dfacdba70e3a96d3e4c6ff617a39e991cf242e6e1f2017f1f67c3408d33"},
-    {file = "pathvalidate-2.5.2.tar.gz", hash = "sha256:5ff57d0fabe5ecb7a4f1e4957bfeb5ad8ab5ab4c0fa71f79c6bbc24bd9b7d14d"},
-]
-
-[package.extras]
-test = ["allpairspy", "click", "faker", "pytest (>=6.0.1)", "pytest-discord (>=0.0.6)", "pytest-md-report (>=0.0.12)"]
-
-[[package]]
 name = "pathy"
 version = "0.10.1"
 description = "pathlib.Path subclasses for local and cloud bucket storage"
@@ -1009,22 +925,6 @@ azure = ["azure-storage-blob"]
 gcs = ["google-cloud-storage (>=1.26.0,<2.0.0)"]
 s3 = ["boto3"]
 test = ["mock", "pytest", "pytest-coverage", "typer-cli"]
-
-[[package]]
-name = "pcfg"
-version = "0.1.5"
-description = "Generate sentences from a probabilistic context-free grammar."
-category = "main"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "pcfg-0.1.5-py3-none-any.whl", hash = "sha256:a522990093d3bc0b917a547f2b0cf0ed80b07e1c82dd9bc2a95e5c30f5884ebf"},
-    {file = "pcfg-0.1.5.tar.gz", hash = "sha256:05eb48c8995af8e29a14c6c0e969dfb73c1c50a1b952f854322648f7930a8d0a"},
-]
-
-[package.dependencies]
-importlib-metadata = ">=3.1.1,<4.0.0"
-nltk = ">=3.5,<4.0"
 
 [[package]]
 name = "pexpect"
@@ -1246,21 +1146,6 @@ dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
 
 [[package]]
-name = "pyevalb"
-version = "0.1.3"
-description = "Scoring tools for bracket tree banks."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "PYEVALB-0.1.3-py3-none-any.whl", hash = "sha256:8387340b969ad31c48d73e6af3bacec6930abc1b1d74085d227410df4d08e7a4"},
-    {file = "PYEVALB-0.1.3.tar.gz", hash = "sha256:8991587bd33ac852781218779901c0f86af5bb1ccb17f1901045dcc7878dce7e"},
-]
-
-[package.dependencies]
-pytablewriter = ">=0.10.2"
-
-[[package]]
 name = "pygments"
 version = "2.15.1"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -1274,42 +1159,6 @@ files = [
 
 [package.extras]
 plugins = ["importlib-metadata"]
-
-[[package]]
-name = "pytablewriter"
-version = "0.64.2"
-description = "pytablewriter is a Python library to write a table in various formats: AsciiDoc / CSV / Elasticsearch / HTML / JavaScript / JSON / LaTeX / LDJSON / LTSV / Markdown / MediaWiki / NumPy / Excel / Pandas / Python / reStructuredText / SQLite / TOML / TSV / YAML."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pytablewriter-0.64.2-py3-none-any.whl", hash = "sha256:c46d1ddc40ef4d084213a86f8626cee33b3aa0119535aa8555da64cb5b65e382"},
-    {file = "pytablewriter-0.64.2.tar.gz", hash = "sha256:99409d401d6ef5f06d1bc40f265a8e3053afe4cbfbaf709f71124076afb40dbb"},
-]
-
-[package.dependencies]
-DataProperty = ">=0.55.0,<2"
-mbstrdecoder = ">=1.0.0,<2"
-pathvalidate = ">=2.3.0,<3"
-setuptools = ">=38.3.0"
-tabledata = ">=1.3.0,<2"
-tcolorpy = ">=0.0.5,<1"
-typepy = {version = ">=1.2.0,<2", extras = ["datetime"]}
-
-[package.extras]
-all = ["PyYAML (>=3.11,<7)", "SimpleSQLite (>=1.1.3,<2)", "XlsxWriter (>=0.9.6,<4)", "dominate (>=2.1.5,<3)", "elasticsearch (>=7.0.5,<8)", "loguru (>=0.4.1,<1)", "pytablereader (>=0.31.3,<2)", "pytablewriter-altrow-theme (>=0.0.2,<1)", "simplejson (>=3.8.1,<4)", "toml (>=0.9.3,<1)", "xlwt"]
-docs = ["Sphinx (>=2.4)", "sphinx-rtd-theme"]
-es = ["elasticsearch (>=7.0.5,<8)"]
-es7 = ["elasticsearch (>=7.0.5,<8)"]
-excel = ["XlsxWriter (>=0.9.6,<4)", "xlwt"]
-from = ["pytablereader (>=0.31.3,<2)"]
-html = ["dominate (>=2.1.5,<3)"]
-logging = ["loguru (>=0.4.1,<1)"]
-sqlite = ["SimpleSQLite (>=1.1.3,<2)"]
-test = ["PyYAML (>=3.11,<7)", "SimpleSQLite (>=1.1.3,<2)", "XlsxWriter (>=0.9.6,<4)", "beautifulsoup4 (>=4.10)", "dominate (>=2.1.5,<3)", "elasticsearch (>=7.0.5,<8)", "idna (<3)", "loguru (>=0.4.1,<1)", "pytablereader (>=0.31.3,<2)", "pytablereader[excel,sqlite] (>=0.31.3)", "pytablewriter-altrow-theme (>=0.0.2,<1)", "pytest (>=6.0.1)", "pytest-md-report (>=0.1)", "simplejson (>=3.8.1,<4)", "sqliteschema (>=1.3.0)", "tablib (>=3.2.0)", "toml (>=0.9.3,<1)", "xlwt"]
-theme = ["pytablewriter-altrow-theme (>=0.0.2,<1)"]
-toml = ["toml (>=0.9.3,<1)"]
-yaml = ["PyYAML (>=3.11,<7)"]
 
 [[package]]
 name = "python-dateutil"
@@ -1899,41 +1748,6 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
-name = "tabledata"
-version = "1.3.1"
-description = "tabledata is a Python library to represent tabular data. Used for pytablewriter/pytablereader/SimpleSQLite/etc."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "tabledata-1.3.1-py3-none-any.whl", hash = "sha256:73e610c378670a2b9bb80e56cece24427d18c8672a36c80fcdf2a3753b19642b"},
-    {file = "tabledata-1.3.1.tar.gz", hash = "sha256:6608f86171f3285f16251ed6649dcf6e953d4fe6a8e622d39b80d1954b9e7711"},
-]
-
-[package.dependencies]
-DataProperty = ">=0.54.2,<2"
-typepy = ">=1.2.0,<2"
-
-[package.extras]
-logging = ["loguru (>=0.4.1,<1)"]
-test = ["pytablewriter (>=0.46)", "pytest"]
-
-[[package]]
-name = "tcolorpy"
-version = "0.1.3"
-description = "tcolopy is a Python library to apply true color for terminal text."
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "tcolorpy-0.1.3-py3-none-any.whl", hash = "sha256:4ba9e4d52696a36dc16a55c20317115fb46e4b8e02796e8e270132719bcefad4"},
-    {file = "tcolorpy-0.1.3.tar.gz", hash = "sha256:43c1afe908f9968ff5ce59f129b62e392049b8e7cd6a8d3f416bd3d372bb5c7a"},
-]
-
-[package.extras]
-test = ["pytest", "pytest-md-report (>=0.1)"]
-
-[[package]]
 name = "thinc"
 version = "8.1.10"
 description = "A refreshing functional take on deep learning, compatible with your favorite libraries"
@@ -2080,28 +1894,6 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
-name = "typepy"
-version = "1.3.0"
-description = "typepy is a Python library for variable type checker/validator/converter at a run time."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "typepy-1.3.0-py3-none-any.whl", hash = "sha256:cf1913982969cf6348152c4a5feec08e324addd99670999e57cdb3ad87a61e9a"},
-    {file = "typepy-1.3.0.tar.gz", hash = "sha256:96788530614083164993d1443959f6c58e6bb8e2da839812ddf462c203e4b84c"},
-]
-
-[package.dependencies]
-mbstrdecoder = ">=1.0.0,<2"
-packaging = {version = "*", optional = true, markers = "extra == \"datetime\""}
-python-dateutil = {version = ">=2.8.0,<3.0.0", optional = true, markers = "extra == \"datetime\""}
-pytz = {version = ">=2018.9", optional = true, markers = "extra == \"datetime\""}
-
-[package.extras]
-datetime = ["packaging", "python-dateutil (>=2.8.0,<3.0.0)", "pytz (>=2018.9)"]
-test = ["packaging", "pytest (>=6.0.1)", "python-dateutil (>=2.8.0,<3.0.0)", "pytz (>=2018.9)", "tcolorpy"]
-
-[[package]]
 name = "typer"
 version = "0.7.0"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
@@ -2191,23 +1983,7 @@ files = [
     {file = "wcwidth-0.2.6.tar.gz", hash = "sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"},
 ]
 
-[[package]]
-name = "zipp"
-version = "3.15.0"
-description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "zipp-3.15.0-py3-none-any.whl", hash = "sha256:48904fc76a60e542af151aded95726c1a5c34ed43ab4134b597665c86d7ad556"},
-    {file = "zipp-3.15.0.tar.gz", hash = "sha256:112929ad649da941c23de50f356a2b5570c954b65150642bccdd66bf194d224b"},
-]
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a30a52c9e2e29d9ee603d2c78f3364591c4f3f6d33632c609c33a7f352134552"
+content-hash = "31ebf54542784e6e27a7ff8480716bb9e0672e879a8c2f7eee54986217b92fb4"
