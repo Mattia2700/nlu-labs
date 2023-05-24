@@ -14,6 +14,8 @@ ipykernel = "^6.22.0"
 scikit-learn = "^1.2.2"
 spacy-conll = "^3.4.0"
 pandas = "^2.0.1"
+sklearn-crfsuite = "^0.3.6"
+pcfg = "^0.1.5"
 
 [build-system]
 requires = ["poetry-core"]
