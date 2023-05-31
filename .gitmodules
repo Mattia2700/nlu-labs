@@ -1,0 +1,3 @@
+[submodule "IntentSlotDatasets"]
+	path = IntentSlotDatasets
+	url = git@github.com:BrownFortress/IntentSlotDatasets.git
