@@ -5,5 +5,8 @@
 from functions import *
 
 if __name__ == "__main__":
-    #Wrtite the code to load the datasets and to run your functions
-    # Print the results
+    vectorizers = load_vectorizers()
+    for vectorizer_id, vectorizer in vectorizers.items():
+        data = fetch_20newsgroups(subset="all", shuffle=True, random_state=42)
+        data.data = vectorizer.fit_transform(data.data)
+        test_vectorizer(vectorizer_id, data)
