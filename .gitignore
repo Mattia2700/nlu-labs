@@ -1,3 +1,4 @@
 *.model
 pyproject.toml
 poetry.lock
+__pycache__
