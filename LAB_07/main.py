@@ -5,5 +5,9 @@
 from functions import *
 
 if __name__ == "__main__":
-    #Wrtite the code to load the datasets and to run your functions
-    # Print the results
+    nlp, crf, trn_sents, tst_sents = load_data()
+    evaluate_features(nlp, crf, trn_sents, tst_sents)
+    evaluate_features(nlp, crf, trn_sents, tst_sents, suffix=True)
+    evaluate_features(nlp, crf, trn_sents, tst_sents, conll_tutorial=True)
+    evaluate_features(nlp, crf, trn_sents, tst_sents, sorrounding_one=True)
+    evaluate_features(nlp, crf, trn_sents, tst_sents, sorrounding_two=True)
