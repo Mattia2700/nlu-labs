@@ -14,4 +14,5 @@ if __name__ == "__main__":
         lang, train_dataset, valid_dataset, test_dataset
     )
     criterion_train, criterion_eval = get_criterions(lang)
-    train(lang, train_loader, valid_loader, test_loader, criterion_train=criterion_train, criterion_eval=criterion_eval)
+    print(len(lang.word2id))
+    train(lang, train_loader, valid_loader, test_loader, criterion_train, criterion_eval, lstm=True, dropout=True)

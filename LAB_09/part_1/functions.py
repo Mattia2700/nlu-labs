@@ -131,21 +131,9 @@ def init_weights(mat):
                     m.bias.data.fill_(0.01)
 
 
-class Parameters:
-    HID_SIZE = 200
-    EMB_SIZE = 300
-    LR = 0.1
-    CLIP = 5
-    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-    VOCAB_LEN = None
-
-    @staticmethod
-    def _set_vocab_len(lang):
-        Parameters.VOCAB_LEN = len(lang.word2id)
 
 
 def get_criterions(lang):
-    Parameters._set_vocab_len(lang)
     criterion_train = nn.CrossEntropyLoss(ignore_index=lang.word2id["<pad>"])
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=lang.word2id["<pad>"], reduction="sum"
@@ -161,7 +149,7 @@ def train(
     criterion_train,
     criterion_eval,
     lstm=False,
-    droput=False,
+    dropout=False,
     adamW=False,
     tie_weights=False,
     variational=False,
@@ -169,10 +157,10 @@ def train(
     model = LM(
         Parameters.EMB_SIZE,
         Parameters.HID_SIZE,
-        Parameters.VOCAB_LEN,
+        Parameters.VOCAB_LEN(lang),
         pad_index=lang.word2id["<pad>"],
         lstm=lstm,
-        dropout=droput,
+        dropout=dropout,
         tie_weights=tie_weights,
         variational=variational,
     ).to(Parameters.DEVICE)
@@ -182,14 +170,13 @@ def train(
     else:
         optimizer = optim.SGD(model.parameters(), lr=Parameters.LR)
 
-    n_epochs = 100
-    patience = 5
     losses_train = []
     losses_dev = []
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    pbar = tqdm(range(1, n_epochs))
+    pbar = tqdm(range(1, Parameters.N_EPOCHS))
+    patience = Parameters.PATIENCE
 
     for epoch in pbar:
         loss = train_loop(
@@ -205,7 +192,7 @@ def train(
             if ppl_dev < best_ppl:  # the lower, the better
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to("cpu")
-                patience = 5
+                patience = Parameters.PATIENCE
             else:
                 patience -= 1
 
@@ -215,12 +202,13 @@ def train(
     best_model.to(Parameters.DEVICE)
     final_ppl, _ = eval_loop(test_loader, criterion_eval, best_model)
     print("Test ppl: ", final_ppl)
+    torch.save(best_model, "bin/best_model.pt")
 
 
 def get_dataset_raw():
-    train_raw = read_file("../ptb.train.txt")
-    valid_raw = read_file("../ptb.valid.txt")
-    test_raw = read_file("../ptb.test.txt")
+    train_raw = read_file("dataset/ptb.train.txt")
+    valid_raw = read_file("dataset/ptb.valid.txt")
+    test_raw = read_file("dataset/ptb.test.txt")
     vocab = get_vocab(train_raw, ["<pad>", "<eos>"])
     return train_raw, valid_raw, test_raw, vocab
 
@@ -230,3 +218,22 @@ def get_dataset(lang, train_raw, valid_raw, test_raw):
     dev_dataset = PennTreeBank(valid_raw, lang)
     test_dataset = PennTreeBank(test_raw, lang)
     return train_dataset, dev_dataset, test_dataset
+
+class Parameters:
+    HID_SIZE = 800
+    EMB_SIZE = 600
+    LR = 0.5
+    CLIP = 5
+    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+    VOCAB_LEN = lambda x: len(x.word2id)
+    N_EPOCHS = 100
+    PATIENCE = 5
+
+    params = {
+        'lstm': True,
+        'lr': [0.1, 0.01, 0.001],
+        'clip': [1, 5, 10],
+        'hid_size': [100, 200, 300],
+        'emb_size': [100, 200, 300],
+        # 'dropout': [0.0, 0.2, 0.5],
+    }
