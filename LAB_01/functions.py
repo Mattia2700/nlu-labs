@@ -8,23 +8,18 @@ from collections import Counter
 
 
 def get_nltk_corpus(model):
-    nltk.download("gutenberg")
-    (
-        chars,
-        words,
-        sents,
-    ) = (
-        nltk.corpus.gutenberg.raw(model),
-        nltk.corpus.gutenberg.words(model),
-        nltk.corpus.gutenberg.sents(model),
-    )
+    # download gutenberg corpus if not already downloaded
+    nltk.download('gutenberg')
+    nltk.download('punkt')
+    chars = nltk.corpus.gutenberg.raw(model)
+    words = nltk.corpus.gutenberg.words(model)
+    sents = nltk.corpus.gutenberg.sents(model)
     return chars, words, sents
 
 
 def load_spacy_model(chars):
-    # subprocess.run("python -m spacy download en_core_web_sm", shell=True)
     if "en_core_web_sm" not in spacy.util.get_installed_models():
-        subprocess.run("python -m spacy download en_core_web_sm", shell=True)
+        spacy.cli.download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(chars, disable=["tagger", "ner", "lemmatizer"])
     return doc

@@ -65,10 +65,10 @@ class IntentsAndSlots(data.Dataset):
 
 def load_dataset():
     tmp_train_raw = load_data(
-        os.path.join("dataset", "IntentSlotDatasets", "ATIS", "train.json")
+        os.path.join("dataset", "ATIS", "train.json")
     )
     test_raw = load_data(
-        os.path.join("dataset", "IntentSlotDatasets", "ATIS", "test.json")
+        os.path.join("dataset", "ATIS", "test.json")
     )
     return tmp_train_raw, test_raw
 

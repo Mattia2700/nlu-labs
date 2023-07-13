@@ -1,3 +1,6 @@
-[submodule "LAB_10/part_1/dataset/IntentSlotDatasets"]
-	path = LAB_10/part_1/dataset/IntentSlotDatasets
+[submodule "LAB_10/part_1/dataset"]
+	path = LAB_10/part_1/dataset
+	url = git@github.com:BrownFortress/IntentSlotDatasets.git
+[submodule "LAB_10/part_2/dataset"]
+	path = LAB_10/part_2/dataset
 	url = git@github.com:BrownFortress/IntentSlotDatasets.git
