@@ -81,7 +81,7 @@ class Lang:
     def lab2id(self, elements, pad=True):
         vocab = {}
         if pad:
-            vocab["pad"] = Parameters.PAD_TOKEN(self.tokenizer)
+            vocab["pad"] = Parameters.PAD_TOKEN
         for elem in elements:
             vocab[elem] = len(vocab)
         return vocab
@@ -118,18 +118,13 @@ def collate_fn(data):
         # So we create a matrix full of PAD_TOKEN (i.e. 0) with the shape
         # batch_size X maximum length of a sequence
         padded_seqs = torch.LongTensor(len(sequences), max_len).fill_(
-            Parameters.PAD_TOKEN(Parameters.tokenizer)
+            Parameters.PAD_TOKEN
         )
         attention_mask = torch.LongTensor(len(sequences), max_len).fill_(0)
         for i, seq in enumerate(sequences):
             end = lengths[i]
             padded_seqs[i, :end] = seq  # We copy each sequence into the matrix
-            attention_mask[i, :end] = 1
-            # get index of Parameters.CLS_TOKEN and Parameters.SEP_TOKEN if they exist
-            cls_index = (seq == Parameters.CLS_TOKEN).nonzero(as_tuple=True)[0]
-            sep_index = (seq == Parameters.SEP_TOKEN).nonzero(as_tuple=True)[0]
-            if len(cls_index) > 0:
-                
+            attention_mask[i, :end] = 1             
 
         # print(padded_seqs)
         padded_seqs = (

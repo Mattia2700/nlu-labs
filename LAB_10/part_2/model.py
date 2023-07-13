@@ -54,6 +54,7 @@ class ModelIAS(nn.Module):
         slots = slots.permute(0, 2, 1)  # We need this for computing the loss
         # Slot size: batch_size, classes, seq_len
         
-        print("intent size: ", intent.size())
+        # remove first and last token from slots
+        slots = slots[:, :, 1:-1]
 
         return slots, intent
