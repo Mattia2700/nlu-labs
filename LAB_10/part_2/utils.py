@@ -21,26 +21,74 @@ def load_data(path):
 
 class IntentsAndSlots(data.Dataset):
     # Mandatory methods are __init__, __len__ and __getitem__
-    def __init__(self, dataset, lang, unk="unk"):
+    def __init__(self, dataset, pad_length=50, unk="unk"):
         self.utterances = []
+        self.intent_label = []
+        self.slot_labels = []
+        self.unk = unk
         self.intents = []
         self.slots = []
-        self.unk = unk
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.pad_length = pad_length
 
         for x in dataset:
-            self.utterances.append(x["utterance"])
-            self.slots.append(x["slots"])
-            self.intents.append(x["intent"])
+            if x["intent"] not in self.intents:
+                self.intents.append(x["intent"])
+            for s in x["slots"]:
+                if s not in self.slots:
+                    self.slots.append(s)
+
+        for x in dataset:
+            self.utterances.append(x["utterance"].split())
+            self.intent_label.append(self.intents.index(x["intent"]))
+            self.slot_labels.append([self.slots.index(s) for s in x["slots"]])
+
+        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
     def __len__(self):
         return len(self.utterances)
 
     def __getitem__(self, idx):
-        utt = self.tokenizer(self.utterances[idx], return_tensors="pt")
-        slots = self.tokenizer(self.slots[idx], return_tensors="pt")
-        intent = self.tokenizer(self.intents[idx], return_tensors="pt")
-        sample = {"utterance": utt, "slots": slots, "intent": intent}
+        utt = self.utterances[idx]
+        slots = self.slot_labels[idx]
+        intent = self.intent_label[idx]
+
+        tokens = []
+        slot_labels_ids = []
+        for u, s in zip(utt, slots):
+            u_token = self.tokenizer.tokenize(u)
+            if not u_token:
+                print(self.tokenizer.unk_token)
+                tokens = [self.tokenizer.unk_token]
+            tokens.extend(u_token)
+            slot_labels_ids.extend([s] + [0] * (len(u_token) - 1))
+
+        assert len(tokens) < self.pad_length - 2
+
+        tokens += [self.tokenizer.sep_token]
+        slot_labels_ids += [0]
+        token_type_ids = [0] * len(tokens)
+
+        tokens = [self.tokenizer.cls_token] + tokens
+        slot_labels_ids = [0] + slot_labels_ids
+        token_type_ids = [0] + token_type_ids
+
+        input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+        attention_mask = [1] * len(input_ids)
+
+        padding_length = self.pad_length - len(input_ids)
+        input_ids = input_ids + ([self.tokenizer.pad_token_id] * padding_length)
+        attention_mask = attention_mask + ([0] * padding_length)
+        token_type_ids = token_type_ids + ([0] * padding_length)
+        slot_labels_ids = slot_labels_ids + ([0] * padding_length)
+
+        sample = {
+            "input_ids": torch.LongTensor(input_ids),
+            "attention_mask": torch.LongTensor(attention_mask),
+            "token_type_ids": torch.LongTensor(token_type_ids),
+            "intent_label_ids": torch.as_tensor(int(intent)),
+            "slot_labels_ids": torch.LongTensor(slot_labels_ids),
+        }
+
         return sample
 
     # Auxiliary methods
@@ -62,12 +110,8 @@ class IntentsAndSlots(data.Dataset):
 
 
 def load_dataset():
-    tmp_train_raw = load_data(
-        os.path.join("dataset", "ATIS", "train.json")
-    )
-    test_raw = load_data(
-        os.path.join("dataset", "ATIS", "test.json")
-    )
+    tmp_train_raw = load_data(os.path.join("dataset", "ATIS", "train.json"))
+    test_raw = load_data(os.path.join("dataset", "ATIS", "test.json"))
     return tmp_train_raw, test_raw
 
 

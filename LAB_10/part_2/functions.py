@@ -42,7 +42,7 @@ class Parameters:
     CLIP = 5  # Clip the gradient
 
     OUT_SLOT = lambda x: len(x.slot2id)  # Number of output slot
-    OUT_INT = 6  # Number of output intent
+    OUT_INT = lambda x: len(x.intent2id)  # Number of output intent
     VOCAB_LEN = lambda x: len(x.word2id)  # Vocabulary size
 
     CRITERSION_SLOTS = nn.CrossEntropyLoss(ignore_index=PAD_TOKEN)
@@ -50,34 +50,6 @@ class Parameters:
 
     N_EPOCHS = 200
     PATIENCE = 3
-
-
-class Lang:
-    def __init__(self, words, intents, slots, cutoff=0):
-        self.word2id = self.w2id(words, cutoff=cutoff, unk=True)
-        self.slot2id = self.lab2id(slots)
-        self.intent2id = self.lab2id(intents, pad=False)
-        self.id2word = {v: k for k, v in self.word2id.items()}
-        self.id2slot = {v: k for k, v in self.slot2id.items()}
-        self.id2intent = {v: k for k, v in self.intent2id.items()}
-
-    def w2id(self, elements, cutoff=None, unk=True):
-        vocab = {"pad": Parameters.PAD_TOKEN}
-        if unk:
-            vocab["unk"] = len(vocab)
-        count = Counter(elements)
-        for k, v in count.items():
-            if v > cutoff:
-                vocab[k] = len(vocab)
-        return vocab
-
-    def lab2id(self, elements, pad=True):
-        vocab = {}
-        if pad:
-            vocab["pad"] = Parameters.PAD_TOKEN
-        for elem in elements:
-            vocab[elem] = len(vocab)
-        return vocab
 
 
 def get_dataset(train_raw, val_raw, test_raw):
@@ -90,72 +62,19 @@ def get_dataset(train_raw, val_raw, test_raw):
     slots = set(sum([line["slots"].split() for line in corpus], []))
     intents = set([line["intent"] for line in corpus])
 
-    lang = Lang(words, intents, slots, cutoff=0)
-
     # Create our datasets
-    train_dataset = IntentsAndSlots(train_raw, lang)
-    val_dataset = IntentsAndSlots(val_raw, lang)
-    test_dataset = IntentsAndSlots(test_raw, lang)
+    train_dataset = IntentsAndSlots(train_raw)
+    val_dataset = IntentsAndSlots(val_raw)
+    test_dataset = IntentsAndSlots(test_raw)
 
-    return train_dataset, val_dataset, test_dataset, lang
-
-
-def collate_fn(data):
-    def merge(sequences):
-        """
-        merge from batch * sent_len to batch * max_len
-        """
-        lengths = [seq.size(dim=1) for seq in sequences]
-        max_len = 1 if max(lengths) == 0 else max(lengths)
-        # Pad token is zero in our case
-        # So we create a matrix full of PAD_TOKEN (i.e. 0) with the shape
-        # batch_size X maximum length of a sequence
-        padded_seqs = torch.LongTensor(len(sequences), max_len).fill_(
-            Parameters.PAD_TOKEN
-        )
-        for i, seq in enumerate(sequences):
-            end = lengths[i]
-            padded_seqs[i, :end] = seq  # We copy each sequence into the matrix
-        # print(padded_seqs)
-        padded_seqs = (
-            padded_seqs.detach()
-        )  # We remove these tensors from the computational graph
-        return padded_seqs, lengths
-
-    # Sort data by seq lengths
-    data.sort(key=lambda x: len(x["utterance"]), reverse=True)
-    new_item = {}
-    for key in data[0].keys():
-        new_item[key] = [d[key]['input_ids'] for d in data]
-    # We just need one length for packed pad seq, since len(utt) == len(slots)
-    src_utt, _ = merge(new_item["utterance"])
-    y_slots, y_lengths = merge(new_item["slots"])
-    intent = merge(new_item["intent"])[0]
-
-    src_utt = src_utt.to(
-        Parameters.DEVICE
-    )  # We load the Tensor on our seleceted device
-    y_slots = y_slots.to(Parameters.DEVICE)
-    intent = intent.to(Parameters.DEVICE)
-    y_lengths = torch.LongTensor(y_lengths).to(Parameters.DEVICE)
-
-    new_item["utterances"] = src_utt
-    new_item["intents"] = intent
-    new_item["y_slots"] = y_slots
-    new_item["slots_len"] = y_lengths
-    del new_item["utterance"]
-    del new_item["slots"]
-    del new_item["intent"]
-    return new_item
+    return train_dataset, val_dataset, test_dataset
 
 
 def get_dataloaders(train_dataset, val_dataset, test_dataset):
     # Dataloader instantiation
-    train_loader = DataLoader(
-        train_dataset, batch_size=128, collate_fn=collate_fn, shuffle=True
-    )
-    val_loader = DataLoader(val_dataset, batch_size=64, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
+    train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=64)
+    test_loader = DataLoader(test_dataset, batch_size=64)
     return train_loader, val_loader, test_loader
 
 
@@ -187,10 +106,12 @@ def train_loop(data, optimizer, criterion_slots, criterion_intents, model):
     loss_array = []
     for sample in data:
         optimizer.zero_grad()  # Zeroing the gradient
-        print(sample["intents"])
-        slots, intent = model(sample["utterances"], sample["slots_len"])
-        loss_intent = criterion_intents(intent, sample["intents"])
-        loss_slot = criterion_slots(slots, sample["y_slots"])
+        slots, intent = model(
+            sample["input_ids"], sample["attention_mask"], sample["token_type_ids"]
+        )  # Forward pass
+        loss_intent = criterion_intents(intent, sample["intent_label_ids"])
+        # remove middle dimension from slots
+        loss_slot = criterion_slots(slots, sample["slot_labels_ids"])
         loss = loss_intent + loss_slot  # In joint training we sum the losses.
         # Is there another way to do that?
         loss_array.append(loss.item())
@@ -255,12 +176,14 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
 
 
 def train(
-    train_loader, val_loader, test_loader, lang, bidirectional=False, dropout=None
+    train_loader, val_loader, test_loader, bidirectional=False, dropout=None
 ):
-    model = CustomBERT(
+    model = ModelIAS(
+        50,
+        50,
         # Parameters.HID_SIZE,
-        Parameters.OUT_SLOT(lang),
-        Parameters.OUT_INT,
+        # Parameters.OUT_SLOT(lang),
+        # Parameters.OUT_INT(lang),
         # Parameters.EMB_SIZE,
         # Parameters.VOCAB_LEN(lang),
         # pad_index=Parameters.PAD_TOKEN,
@@ -295,7 +218,6 @@ def train(
                 Parameters.CRITERSION_SLOTS,
                 Parameters.CRITERSION_INTENTS,
                 model,
-                lang,
             )
             losses_dev.append(np.asarray(loss_dev).mean())
             f1 = results_dev["total"]["f"]
