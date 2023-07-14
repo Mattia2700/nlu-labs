@@ -7,3 +7,6 @@ from functions import *
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
     # Print the results
+    sentences, rules = get_sentences(), get_rules()
+    pcfg_grammar = create_grammar(rules)
+    generate_sentences(pcfg_grammar)
