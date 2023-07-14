@@ -45,7 +45,7 @@ class Parameters:
     HID_SIZE = 200
     EMB_SIZE = 300
 
-    LR = 0.01  # learning rate
+    LR = 0.00001  # learning rate
     CLIP = 5  # Clip the gradient
 
     OUT_SLOT = lambda x: len(x.slot2id)  # Number of output slot
@@ -204,7 +204,7 @@ def train_loop(data, optimizer, criterion_slots, criterion_intents, model):
         loss_array.append(loss.item())
         loss.backward()  # Compute the gradient, deleting the computational graph
         # clip the gradient to avoid explosioning gradients
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), Parameters.CLIP)
         optimizer.step()  # Update the weights
     return loss_array
 
