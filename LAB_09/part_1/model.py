@@ -5,20 +5,6 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 
-class VariationalDropout(nn.Module):
-    def __init__(self, dropout):
-        self.dropout = dropout
-        super().__init__()
-
-    def forward(self, x):
-        if not self.training:
-            return x
-        m = x.data.new(1, x.size(1), x.size(2)).bernoulli_(1 - self.dropout)
-        mask = Variable(m, requires_grad=False) / (1 - self.dropout)
-        mask = mask.expand_as(x)
-        return mask * x
-
-
 class LM(nn.Module):
     @staticmethod
     def cosine_similarity(x, y):
@@ -35,26 +21,14 @@ class LM(nn.Module):
         n_layers=1,
         lstm=False,
         dropout=False,
-        tie_weights=False,
-        variational=False,
     ):
         self.dropout = dropout
         super(LM, self).__init__()
 
-        if tie_weights:
-            if emb_size != hidden_size:
-                print(
-                    "When tying weights, emb_size must be equal to hidden_size. Setting hidden_size to emb_size"
-                )
-                hidden_size = emb_size
-
         # Token ids to vectors, we will better see this in the next lab
         self.embedding = nn.Embedding(output_size, emb_size, padding_idx=pad_index)
         if self.dropout:
-            if variational:
-                self.embedding_dropout = VariationalDropout(emb_dropout)
-            else:
-                self.embedding_dropout = nn.Dropout(emb_dropout)
+            self.embedding_dropout = nn.Dropout(emb_dropout)
         # Pytorch's RNN layer: https://pytorch.org/docs/stable/generated/torch.nn.RNN.html
         if lstm:
             self.rnn = nn.LSTM(emb_size, hidden_size, n_layers, bidirectional=False)
@@ -62,15 +36,9 @@ class LM(nn.Module):
             self.rnn = nn.RNN(emb_size, hidden_size, n_layers, bidirectional=False)
         self.pad_token = pad_index
         if self.dropout:
-            if variational:
-                self.rnn_dropout = VariationalDropout(out_dropout)
-            else:
-                self.rnn_dropout = nn.Dropout(out_dropout)
+            self.rnn_dropout = nn.Dropout(out_dropout)
         # Linear layer to project the hidden layer to our output space
         self.output = nn.Linear(hidden_size, output_size)
-
-        if tie_weights:
-            self.output.weight = self.embedding.weight
 
     def get_word_embedding(self, token):
         return self.embedding(token).squeeze(0).detach().cpu().numpy()
