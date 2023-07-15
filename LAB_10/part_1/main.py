@@ -9,10 +9,14 @@ if __name__ == "__main__":
     # Print the results
     tmp_train_raw, test_raw = load_dataset()
     train_raw, val_raw, test_raw = split_dataset(tmp_train_raw, test_raw)
+
     train_dataset, val_dataset, test_dataset, lang = get_dataset(
         train_raw, val_raw, test_raw
     )
     train_loader, val_loader, test_loader = get_dataloaders(
         train_dataset, val_dataset, test_dataset
     )
-    train(train_loader, val_loader, test_loader, lang, bidirectional=True)
+
+    # train(train_loader, val_loader, test_loader, lang, bidirectional=True)
+    eval(test_loader, load_model(bidirectional=True), lang)
+    eval(test_loader, load_model(bidirectional=False), lang)

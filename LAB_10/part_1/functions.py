@@ -315,3 +315,18 @@ def train(
     print("Slot F1: ", results_test["total"]["f"])
     print("Intent Accuracy:", intent_test["accuracy"])
     torch.save(best_model, "bin/best_model.pt")
+
+def load_model(bidirectional=False, dropout=True):
+    if bidirectional:
+        print("LSTM bidirectional", end=" ", flush=True)
+        model = torch.load('bin/bi-lr0.01.pt', map_location=Parameters.DEVICE)
+    elif dropout:
+        print("LSTM bidirectional model with dropout", end=" ", flush=True)
+        model = torch.load('bin/bi-dropout0.3-lr0.01.pt', map_location=Parameters.DEVICE)
+    model.eval()
+    return model
+
+def eval(test_loader, model, lang):
+    results_test, intent_test, _ = eval_loop(test_loader, Parameters.CRITERSION_SLOTS, Parameters.CRITERSION_INTENTS, model, lang)
+    print("Slot F1:", results_test["total"]["f"], end=" ")
+    print("Intent Accuracy:", intent_test["accuracy"])

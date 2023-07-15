@@ -327,3 +327,14 @@ def train(
     print("Slot F1: ", results_test["total"]["f"])
     print("Intent Accuracy:", intent_test["accuracy"])
     torch.save(best_model, "bin/best_model.pt")
+
+def load_model():
+    print("BERT", end=" ", flush=True)
+    model = torch.load('bin/lr0.00001.pt', map_location=Parameters.DEVICE)
+    model.eval()
+    return model
+
+def eval(test_loader, model, lang):
+    results_test, intent_test, _ = eval_loop(test_loader, Parameters.CRITERSION_SLOTS, Parameters.CRITERSION_INTENTS, model, lang)
+    print("Slot F1:", results_test["total"]["f"], end=" ")
+    print("Intent Accuracy:", intent_test["accuracy"])
