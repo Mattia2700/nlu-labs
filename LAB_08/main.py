@@ -5,7 +5,7 @@
 from functions import *
 
 if __name__ == "__main__":
-    #Wrtite the code to load the datasets and to run your functions
+    # Wrtite the code to load the datasets and to run your functions
     # Print the results
     data, labels = get_data()
     vectorizer, classifier, stratified_split = get_models()
@@ -20,3 +20,8 @@ if __name__ == "__main__":
     uvectors = concatenate_vectors(vectors, dvectors)
     print("BOW + collocational features:", end="\t")
     evaluate_all(classifier, uvectors, labels, stratified_split)
+
+    data, labels = get_data(encoded=False)
+    data, labels = get_test_set(stratified_split, data, labels)
+    print("Lesks comparison:", end="\t", flush=True)
+    eval_lesks(data, labels)
