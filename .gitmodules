@@ -4,3 +4,6 @@
 [submodule "LAB_10/part_2/dataset"]
 	path = LAB_10/part_2/dataset
 	url = git@github.com:BrownFortress/IntentSlotDatasets.git
+[submodule "nlu-report"]
+	path = nlu-report
+	url = git@github.com:Mattia2700/nlu-report.git
