@@ -7,3 +7,5 @@ from functions import *
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
     # Print the results
+    skf, dataset = get_data()
+    train(skf, dataset)
