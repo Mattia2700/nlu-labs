@@ -15,8 +15,8 @@ import torch
 from model import *
 from utils import *
 
-nltk.download("subjectivity")
-from nltk.corpus import subjectivity
+# nltk.download("subjectivity")
+# from nltk.corpus import subjectivity
 
 def lol2str(doc):
     # flatten & join
@@ -30,7 +30,7 @@ def get_data():
     sentences = [lol2str(d) for d in obj] + [lol2str(d) for d in subj]
     ref = np.array([0] * len(obj) + [1] * len(subj))
 
-    skf = KFold(n_splits=5, shuffle=True, random_state=42)
+    skf = KFold(n_splits=10, shuffle=True, random_state=42)
     dataset = Sentences(sentences, ref)
 
     return skf, dataset
@@ -46,7 +46,7 @@ def get_dataloaders(dataset, train_idx, test_idx):
     def collate_fn(batch):
         sentences, ref = zip(*batch)
         sentences = Parameters.TOKENIZER(
-            list(sentences), padding=True, return_tensors="pt"
+            list(sentences), padding=True, truncation=True, return_tensors="pt"
         )
         ref = torch.tensor(ref).float()
         sentences = sentences.to(Parameters.DEVICE)
@@ -70,20 +70,21 @@ def get_dataloaders(dataset, train_idx, test_idx):
         collate_fn=collate_fn,
     )
 
+    print("Train size:", len(trainloader))
+    print("Test size:", len(testloader))
+
     return trainloader, testloader
 
 
 class Parameters:
     TOKENIZER = BertTokenizer.from_pretrained("bert-base-uncased")
     EPOCHS = 100
-    BATCH_SIZE = 64
-    LEARNING_RATE = 0.001
-    PAD_TOKEN = TOKENIZER.pad_token_id
+    BATCH_SIZE = 16
     TRAINING_CRITERION = nn.MSELoss()
     EVALUATION_CRITERION = nn.MSELoss()
     OPTIMIZER = torch.optim.Adam
-    LR = 0.001
-    PATIENCE = 5
+    LR = 0.01
+    PATIENCE = 3
     CLIP = 5
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -98,7 +99,7 @@ def train(skf, dataset):
 
         model = Subjectivity()
         init_weights(model)
-        model.to(Parameters.DEVICE)
+        model = model.to(Parameters.DEVICE)
         model.train()
         optimizer = Parameters.OPTIMIZER(model.parameters(), lr=Parameters.LR)
 
@@ -112,10 +113,9 @@ def train(skf, dataset):
             train_loss = []
             test_loss = []
 
-            for sample in trainloader:
+            for index, sample in enumerate(trainloader):
                 optimizer.zero_grad()
                 output = model(sample["input_ids"], sample["attention_mask"])
-                print(output, sample["ref"])
                 loss = Parameters.TRAINING_CRITERION(output, sample["ref"])
                 train_loss.append(loss.item())
                 torch.nn.utils.clip_grad_norm_(model.parameters(), Parameters.CLIP)
@@ -134,7 +134,7 @@ def train(skf, dataset):
                 with torch.no_grad():
                     for sample in testloader:
                         output = model(sample["input_ids"], sample["attention_mask"])
-                        output = 1 if output > 0.5 else 0
+                        output = [1 if o > 0.5 else 0 for o in output]
                         loss = Parameters.EVALUATION_CRITERION(output, sample["ref"])
                         test_loss.append(loss.item())
                         ref.extend(sample["ref"].tolist())
@@ -145,7 +145,7 @@ def train(skf, dataset):
 
                 rep = classification_report(ref, pred, zero_division=False, output_dict=True)
                 f1 = rep["total"]["f"]
-
+                print("F1:", f1)
 
                 if f1 > best_f1:
                     best_f1 = f1

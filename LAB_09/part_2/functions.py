@@ -153,7 +153,7 @@ def train(
     adamW=False,
     tie_weights=False,
     variational=False,
-    NTASGD=False,
+    ntasgd=False,
 ):
     model = LM(
         Parameters.EMB_SIZE,
@@ -169,7 +169,7 @@ def train(
     if adamW:
         optimizer = optim.AdamW(model.parameters(), lr=Parameters.LR)
     else:
-        if NTASGD:
+        if ntasgd:
             optimizer = NTASGD(model.parameters(), lr=Parameters.LR)
         else:
             optimizer = optim.SGD(model.parameters(), lr=Parameters.LR)
@@ -237,23 +237,14 @@ def get_dataset(lang, train_raw, valid_raw, test_raw):
     return train_dataset, dev_dataset, test_dataset
 
 class Parameters:
-    HID_SIZE = 800
-    EMB_SIZE = 600
-    LR = 0.5
+    HID_SIZE = 400
+    EMB_SIZE = 300
+    LR = 0.01
     CLIP = 5
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
     VOCAB_LEN = lambda x: len(x.word2id)
     N_EPOCHS = 100
-    PATIENCE = 5
-
-    params = {
-        'lstm': True,
-        'lr': [0.1, 0.01, 0.001],
-        'clip': [1, 5, 10],
-        'hid_size': [100, 200, 300],
-        'emb_size': [100, 200, 300],
-        # 'dropout': [0.0, 0.2, 0.5],
-    }
+    PATIENCE = 3
 
 def get_seq_len(bptt):
         seq_len = bptt if np.random.random() < 0.95 else bptt/2
@@ -263,21 +254,20 @@ def get_seq_len(bptt):
             seq_len = round(np.random.normal(seq_len, 5))
         return seq_len
 
-def load_model(tie_weights=False, variational=False, NTASGD=False):
+def load_model(tie_weights=False, variational=False, ntasgd=False):
     if tie_weights:
-        print("LSTM with dropout and embedding-output shared weights using AdamW optimizer:", end="\t", flush=True)
+        print("LSTM with dropout and embedding-output shared weights using AdamW optimizer", end=" ", flush=True)
         model = torch.load('bin/weights-tying-lr0.01.pt', map_location=Parameters.DEVICE)
     elif variational:
-        print("LSTM with variational dropout and embedding-output shared weights using AdamW optimizer:", end="\t", flush=True)
+        print("LSTM with variational dropout and embedding-output shared weights using AdamW optimizer", end=" ", flush=True)
         model = torch.load('bin/variational-lr0.01.pt', map_location=Parameters.DEVICE)
-    elif NTASGD:
-        print("LSTM with dropout using NTASGD optimizer:", end="\t", flush=True)
-        print("TODO!!!")
-        exit()
+    elif ntasgd:
+        print("LSTM with dropout using NTASGD optimizer", end=" ", flush=True)
+        model = torch.load('bin/best_model.pt', map_location=Parameters.DEVICE)
         # model = torch.load('bin/adamw-lr0.01.pt', map_location=Parameters.DEVICE)
     model.eval()
     return model
 
 def eval(test_loader, criterion_eval, model):
     ppl, _ = eval_loop(test_loader, criterion_eval, model)
-    print("Test ppl: ", ppl)
+    print("- Test ppl:", ppl)

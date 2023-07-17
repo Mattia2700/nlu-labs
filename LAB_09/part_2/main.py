@@ -16,8 +16,8 @@ if __name__ == "__main__":
     )
 
     criterion_train, criterion_eval = get_criterions(lang)
-    # train(lang, train_loader, valid_loader, test_loader, criterion_train, criterion_eval, lstm=True, dropout=True, tie_weights=True, variational=True, NTASGD=True)
+    train(lang, train_loader, valid_loader, test_loader, criterion_train, criterion_eval, lstm=True, dropout=True, tie_weights=True, variational=True, ntasgd=True)
 
     eval(test_loader, criterion_eval, load_model(tie_weights=True))
     eval(test_loader, criterion_eval, load_model(variational=True))
-    eval(test_loader, criterion_eval, load_model(NTASGD=True))
+    eval(test_loader, criterion_eval, load_model(ntasgd=True))

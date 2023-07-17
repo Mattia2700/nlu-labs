@@ -1,8 +1,8 @@
 # Add functions or classes used for data loading and preprocessing
 import nltk
 
-nltk.download("subjectivity")
-from nltk.corpus import subjectivity
+# nltk.download("subjectivity")
+# from nltk.corpus import subjectivity
 import random
 from torch.utils.data import Dataset
 from transformers import BertTokenizer

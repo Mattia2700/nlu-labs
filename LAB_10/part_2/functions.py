@@ -23,13 +23,10 @@ try:
     from conll import evaluate
 except ImportError:
     # downlaod it from https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py
-    import requests
+    import wget
 
     url = "https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py"
-    r = requests.get(url)
-    with open("conll.py", "w") as f:
-        if r.status_code == 200:
-            f.write(r.text)
+    wget.download(url)
     from conll import evaluate
 
 
@@ -68,23 +65,57 @@ class Lang:
         self.id2slot = {v: k for k, v in self.slot2id.items()}
         self.id2intent = {v: k for k, v in self.intent2id.items()}
 
-    def w2id(self, elements, cutoff=None, unk=True):
-        vocab = {"pad": Parameters.PAD_TOKEN, "cls": Parameters.CLS_TOKEN, "sep": Parameters.SEP_TOKEN}
-        if unk:
-            vocab["unk"] = Parameters.UNK_TOKEN
-        elements = set(elements)
-        input_ids = Parameters.TOKENIZER.convert_tokens_to_ids(elements)
-        for elem, input_id in zip(elements, input_ids):
-            vocab[elem] = input_id
-        return vocab
+    def w2id(self, elements, cutoff=None, unk=True, load=True):
+        if load:
+            try:
+                with open("dataset/w2id.json", "r") as f:
+                    vocab = json.load(f)
+            except FileNotFoundError:
+                print("No vocab found, creating one...", flush=True)
+                vocab = self.w2id(elements, cutoff=cutoff, unk=unk, load=False)
+            finally:
+                return vocab
+        else:
+            vocab = {"pad": Parameters.PAD_TOKEN, "cls": Parameters.CLS_TOKEN, "sep": Parameters.SEP_TOKEN}
+            if unk:
+                vocab["unk"] = Parameters.UNK_TOKEN
+            elements = set(elements)
+            input_ids = Parameters.TOKENIZER.convert_tokens_to_ids(elements)
+            for elem, input_id in zip(elements, input_ids):
+                vocab[elem] = input_id
+            # save dict to json
+            with open("dataset/w2id.json", "w") as f:
+                json.dump(vocab, f)
+            return vocab
 
-    def lab2id(self, elements, pad=True):
-        vocab = {}
-        if pad:
-            vocab["pad"] = Parameters.PAD_TOKEN
-        for elem in elements:
-            vocab[elem] = len(vocab)
-        return vocab
+    def lab2id(self, elements, pad=True, load=True):
+        if load:
+            try:
+                if pad:
+                    with open("dataset/slot2id.json", "r") as f:
+                        vocab = json.load(f)
+                else:
+                    with open("dataset/intent2id.json", "r") as f:
+                        vocab = json.load(f)
+            except FileNotFoundError:
+                print("No vocab found, creating one...", flush=True)
+                vocab = self.lab2id(elements, load=False, pad=pad)
+            finally:
+                return vocab
+        else:
+            vocab = {"pad": Parameters.PAD_TOKEN} if pad else {}
+            elements = set(elements)
+            input_ids = Parameters.TOKENIZER.convert_tokens_to_ids(elements)
+            for elem, input_id in zip(elements, input_ids):
+                vocab[elem] = input_id
+            # save dict to json
+            if pad:
+                with open("dataset/slot2id.json", "w") as f:
+                    json.dump(vocab, f)
+            else:
+                with open("dataset/intent2id.json", "w") as f:
+                    json.dump(vocab, f)
+            return vocab
 
 
 def get_dataset(train_raw, val_raw, test_raw):

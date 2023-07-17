@@ -240,17 +240,17 @@ class Parameters:
 
 def load_model(lstm=False, dropout=False, adamw=False):
     if lstm:
-        print("LSTM model:", end="\t", flush=True)
+        print("LSTM model", end=" ", flush=True)
         model = torch.load('bin/lstm-lr0.3.pt', map_location=Parameters.DEVICE)
     elif dropout:
-        print("LSTM with dropout:", end="\t", flush=True)
+        print("LSTM with dropout", end=" ", flush=True)
         model = torch.load('bin/dropout0.3-800-600+lr0.5.pt', map_location=Parameters.DEVICE)
     elif adamw:
-        print("LSTM with dropout using AdamW optimizer:", end="\t", flush=True)
+        print("LSTM with dropout using AdamW optimizer", end=" ", flush=True)
         model = torch.load('bin/adamw-lr0.01.pt', map_location=Parameters.DEVICE)
     model.eval()
     return model
 
 def eval(test_loader, criterion_eval, model):
     ppl, _ = eval_loop(test_loader, criterion_eval, model)
-    print("Test ppl: ", ppl)
+    print("- Test ppl:", ppl)

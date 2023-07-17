@@ -17,6 +17,6 @@ if __name__ == "__main__":
         train_dataset, val_dataset, test_dataset
     )
 
-    # train(train_loader, val_loader, test_loader, lang, bidirectional=True)
+    # train(train_loader, val_loader, test_loader, lang, bidirectional=True, dropout=0.2)
     eval(test_loader, load_model(bidirectional=True), lang)
-    eval(test_loader, load_model(bidirectional=False), lang)
+    eval(test_loader, load_model(dropout=True), lang)

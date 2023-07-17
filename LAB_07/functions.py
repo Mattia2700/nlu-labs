@@ -5,18 +5,16 @@ from spacy.tokenizer import Tokenizer
 from nltk.corpus import conll2002
 from sklearn_crfsuite import CRF
 import pandas as pd
+import nltk
 
 try:
     from conll import evaluate
 except ImportError:
     # downlaod it from https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py
-    import requests
+    import wget
 
     url = "https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py"
-    r = requests.get(url)
-    with open("conll.py", "w") as f:
-        if r.status_code == 200:
-            f.write(r.text)
+    wget.download(url)
     from conll import evaluate
 
 
@@ -44,6 +42,7 @@ def sent2pos(sent):
 def load_data():
     if not spacy.util.is_package("es_core_news_sm"):
         spacy.cli.download("es_core_news_sm")
+    nltk.download('conll2002', quiet=True)
     nlp = spacy.load("es_core_news_sm")
     nlp.tokenizer = Tokenizer(nlp.vocab)  # to use white space tokenization
 

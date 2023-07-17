@@ -9,4 +9,5 @@ if __name__ == "__main__":
     # Print the results
     sentences, rules = get_sentences(), get_rules()
     pcfg_grammar = create_grammar(rules)
+    print_trees(sentences, pcfg_grammar)
     generate_sentences(pcfg_grammar)

@@ -17,17 +17,17 @@ import copy
 from model import *
 from utils import *
 
+import warnings
+warnings.filterwarnings("ignore")
+
 try:
     from conll import evaluate
 except ImportError:
     # downlaod it from https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py
-    import requests
+    import wget
 
     url = "https://raw.githubusercontent.com/BrownFortress/NLU-2023-Labs/main/labs/conll.py"
-    r = requests.get(url)
-    with open("conll.py", "w") as f:
-        if r.status_code == 200:
-            f.write(r.text)
+    wget.download(url)
     from conll import evaluate
 
 
@@ -38,7 +38,7 @@ class Parameters:
     HID_SIZE = 200
     EMB_SIZE = 300
 
-    LR = 0.01  # learning rate
+    LR = 0.001  # learning rate
     CLIP = 5  # Clip the gradient
 
     OUT_SLOT = lambda x: len(x.slot2id)  # Number of output slot
@@ -61,23 +61,54 @@ class Lang:
         self.id2slot = {v: k for k, v in self.slot2id.items()}
         self.id2intent = {v: k for k, v in self.intent2id.items()}
 
-    def w2id(self, elements, cutoff=None, unk=True):
-        vocab = {"pad": Parameters.PAD_TOKEN}
-        if unk:
-            vocab["unk"] = len(vocab)
-        count = Counter(elements)
-        for k, v in count.items():
-            if v > cutoff:
-                vocab[k] = len(vocab)
-        return vocab
+    def w2id(self, elements, cutoff=None, unk=True, load=True):
+        if load:
+            try:
+                with open("dataset/w2id.json", "r") as f:
+                    vocab = json.load(f)
+            except FileNotFoundError:
+                print("No vocab found, creating one...", flush=True)
+                vocab = self.w2id(elements, cutoff=cutoff, unk=unk, load=False)
+            return vocab
+        else:
+            vocab = {"pad": Parameters.PAD_TOKEN}
+            if unk:
+                vocab["unk"] = len(vocab)
+            count = Counter(elements)
+            for k, v in count.items():
+                if v > cutoff:
+                    vocab[k] = len(vocab)
+            with open("dataset/w2id.json", "w") as f:
+                json.dump(vocab, f)
+            return vocab
 
-    def lab2id(self, elements, pad=True):
-        vocab = {}
-        if pad:
-            vocab["pad"] = Parameters.PAD_TOKEN
-        for elem in elements:
-            vocab[elem] = len(vocab)
-        return vocab
+    def lab2id(self, elements, pad=True, load=True):
+        if load:
+            try:
+                if pad:
+                    with open("dataset/lab2id.json", "r") as f:
+                        vocab = json.load(f)
+                else:
+                    with open("dataset/intent2id.json", "r") as f:
+                        vocab = json.load(f)
+            except FileNotFoundError:
+                print("No vocab found, creating one...", flush=True)
+                vocab = self.lab2id(elements, pad=pad, load=False)
+            finally:
+                return vocab
+        else:
+            vocab = {}
+            if pad:
+                vocab["pad"] = Parameters.PAD_TOKEN
+            for elem in elements:
+                vocab[elem] = len(vocab)
+            if pad:
+                with open("dataset/lab2id.json", "w") as f:
+                    json.dump(vocab, f)
+            else:
+                with open("dataset/intent2id.json", "w") as f:
+                    json.dump(vocab, f)
+            return vocab
 
 
 def get_dataset(train_raw, val_raw, test_raw):
@@ -149,7 +180,7 @@ def collate_fn(data):
 def get_dataloaders(train_dataset, val_dataset, test_dataset):
     # Dataloader instantiation
     train_loader = DataLoader(
-        train_dataset, batch_size=128, collate_fn=collate_fn, shuffle=True
+        train_dataset, batch_size=128, collate_fn=collate_fn, shuffle=False
     )
     val_loader = DataLoader(val_dataset, batch_size=64, collate_fn=collate_fn)
     test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
@@ -316,17 +347,17 @@ def train(
     print("Intent Accuracy:", intent_test["accuracy"])
     torch.save(best_model, "bin/best_model.pt")
 
-def load_model(bidirectional=False, dropout=True):
+def load_model(bidirectional=False, dropout=False):
     if bidirectional:
         print("LSTM bidirectional", end=" ", flush=True)
         model = torch.load('bin/bi-lr0.01.pt', map_location=Parameters.DEVICE)
     elif dropout:
         print("LSTM bidirectional model with dropout", end=" ", flush=True)
-        model = torch.load('bin/bi-dropout0.3-lr0.01.pt', map_location=Parameters.DEVICE)
+        model = torch.load('bin/best_model.pt', map_location=Parameters.DEVICE)
     model.eval()
     return model
 
 def eval(test_loader, model, lang):
     results_test, intent_test, _ = eval_loop(test_loader, Parameters.CRITERSION_SLOTS, Parameters.CRITERSION_INTENTS, model, lang)
-    print("Slot F1:", results_test["total"]["f"], end=" ")
-    print("Intent Accuracy:", intent_test["accuracy"])
+    print("- Slot F1:", results_test["total"]["f"], end=" ")
+    print("- Intent Accuracy:", intent_test["accuracy"])

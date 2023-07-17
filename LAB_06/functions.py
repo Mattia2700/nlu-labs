@@ -8,10 +8,12 @@ import spacy
 # Stanza version
 import stanza
 import spacy_stanza
+import nltk
 
 from nltk.parse import DependencyEvaluator
 
 def get_data():
+    nltk.download('dependency_treebank', quiet=True)
     # get the last 100 sentences
     data = dependency_treebank.sents()[-100:]
     tagged_data = dependency_treebank.parsed_sents()[-100:]
@@ -19,8 +21,9 @@ def get_data():
 
 def get_spacy_graphs(data):
 
+    if not spacy.util.is_package("en_core_web_sm"):
+        spacy.cli.download("en_core_web_sm")
     print("Computing Spacy graphs and evaluating...")
-
     # Load the spacy model
     nlp = spacy.load("en_core_web_sm")
 

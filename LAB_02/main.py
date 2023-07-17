@@ -8,5 +8,6 @@ if __name__ == "__main__":
     vectorizers = load_vectorizers()
     for vectorizer_id, vectorizer in vectorizers.items():
         data = fetch_20newsgroups(subset="all", shuffle=True, random_state=42)
+        print("Fitting data...", flush=True)
         data.data = vectorizer.fit_transform(data.data)
         test_vectorizer(vectorizer_id, data)

@@ -9,6 +9,7 @@ from itertools import chain
 import spacy
 import en_core_web_sm
 from spacy.tokenizer import Tokenizer
+import nltk
 
 mapping_spacy_to_NLTK = {
     "ADJ": "ADJ",
@@ -32,6 +33,8 @@ mapping_spacy_to_NLTK = {
 
 
 def setup_dataset():
+    nltk.download("treebank", quiet=True)
+    nltk.download("universal_tagset", quiet=True)
     total_size = len(treebank.tagged_sents())
     train_indx = math.ceil(total_size * 0.8)
     trn_data = treebank.tagged_sents(tagset="universal")[:train_indx]

@@ -51,7 +51,7 @@ def evaluate_my_model(ngram_order, lex, padded_ngrams_oov, flat_text_oov, test_s
     )
     ngrams = chain.from_iterable(ngrams)
     ppl = my_backoff.perplexity([x for x in ngrams if len(x) == my_backoff.order])
-    print("PPL:", ppl)
+    print("My StupidBackoff PPL:", ppl)
 
 
 def evaluate_nltk_model(ngram_order, lex, padded_ngrams_oov, flat_text_oov, test_set):
@@ -66,4 +66,4 @@ def evaluate_nltk_model(ngram_order, lex, padded_ngrams_oov, flat_text_oov, test
     ppl = stupid_backoff.perplexity(
         [x for x in ngrams if len(x) == stupid_backoff.order]
     )
-    print("PPL:", ppl)
+    print("NLTK StupidBackoff PPL:", ppl)

@@ -3,17 +3,18 @@
 
 import nltk
 from pcfg import PCFG
-# from nltk import Nonterminal
-# from nltk.parse.generate import generate
 
 
 def get_sentences():
     # return sentences with 10 words
-    return [
+    sentences = [
         "he is a student at the University of Trento",
         "Paul wants to go to the cinema",
         "the balloon floats in the air",
     ]
+    print("Sentences:", ", ".join(sentences))
+    return sentences
+
 
 def get_rules():
     return [
@@ -56,20 +57,18 @@ def get_rules():
     ]
 
 def create_grammar(rules):
-    # nltk_grammar = nltk.PCFG.fromstring(rules)
     pcfg_grammar = PCFG.fromstring(rules)
-
     return pcfg_grammar
 
+def print_trees(sentences, grammar):
+    parser = nltk.ChartParser(grammar)
+
+    for sent in sentences:
+        for tree in parser.parse(sent.split()):
+            print(tree.pretty_print())
+
 def generate_sentences(pcfg_grammar):
-    # start = Nonterminal('S')
-
-    # print("NLTK generate:\n")
-
-    # for sent in generate(nltk_grammar, start=start, depth=5, n=10):
-    #     print(" ".join(sent))
-
-    # print("\nPCFG generate:\n")
+    print("Generated sentences:")
 
     for sent in pcfg_grammar.generate(10):
         print(sent)

@@ -3,14 +3,12 @@
 
 import nltk
 import spacy
-import subprocess
 from collections import Counter
-
 
 def get_nltk_corpus(model):
     # download gutenberg corpus if not already downloaded
-    nltk.download('gutenberg')
-    nltk.download('punkt')
+    nltk.download('gutenberg', quiet=True)
+    nltk.download('punkt', quiet=True)
     chars = nltk.corpus.gutenberg.raw(model)
     words = nltk.corpus.gutenberg.words(model)
     sents = nltk.corpus.gutenberg.sents(model)
@@ -27,6 +25,7 @@ def load_spacy_model(chars):
 
 def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=False):
     if manual:
+        print("\nNLTK manual Descriptive Statistics")
         print("Number of characters:", len(chars))
         print("Number of words:", len(words))
         print("Number of sentences:", len(sents))
@@ -41,6 +40,7 @@ def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=Fals
             max_char_per_token,
             avg_char_per_token,
         )
+
         min_word_per_sentence, max_word_per_sentence, avg_word_per_sentence = (
             min(len(sent) for sent in sents),
             max(len(sent) for sent in sents),
@@ -68,6 +68,7 @@ def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=Fals
             avg_sentences_per_document,
         )
     else:
+        print("\nNLTK Descriptive Statistics")
         words = nltk.word_tokenize(chars)
         sents = nltk.sent_tokenize(chars)
         print("Number of characters:", len(chars))
@@ -113,6 +114,7 @@ def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=Fals
 
 
 def print_spacy_descriptive_statistics(doc, chars):
+    print("\nSpacy Descriptive Statistics")
     words = [token for token in doc]
     sents = [sent for sent in doc.sents]
     print("Number of characters:", len(chars))
