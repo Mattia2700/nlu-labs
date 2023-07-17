@@ -263,8 +263,7 @@ def load_model(tie_weights=False, variational=False, ntasgd=False):
         model = torch.load('bin/variational-lr0.01.pt', map_location=Parameters.DEVICE)
     elif ntasgd:
         print("LSTM with dropout using NTASGD optimizer", end=" ", flush=True)
-        model = torch.load('bin/best_model.pt', map_location=Parameters.DEVICE)
-        # model = torch.load('bin/adamw-lr0.01.pt', map_location=Parameters.DEVICE)
+        model = torch.load('bin/ntasgd-lr0.5.pt', map_location=Parameters.DEVICE)
     model.eval()
     return model
 

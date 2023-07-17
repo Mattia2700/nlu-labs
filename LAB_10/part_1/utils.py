@@ -96,7 +96,7 @@ def split_dataset(tmp_train_raw, test_raw):
 
     # Random Stratify
     X_train, X_dev, y_train, y_dev = train_test_split(
-        X, Y, test_size=portion, random_state=42, shuffle=True, stratify=Y
+        X, Y, test_size=portion, random_state=42,, stratify=Y
     )
     X_train.extend(mini_Train)
     train_raw = X_train

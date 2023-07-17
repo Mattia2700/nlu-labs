@@ -22,101 +22,21 @@ def load_spacy_model(chars):
     doc = nlp(chars, disable=["tagger", "ner", "lemmatizer"])
     return doc
 
+def statistics(chars, words, sents):
+    word_lens = [len(word) for word in words]
+    sent_lens = [len(sent) for sent in sents]
+    chars_in_sents = [len(''.join(sent)) for sent in sents]
+    
+    word_per_sent = round(sum(sent_lens) / len(sents))
+    char_per_word = round(sum(word_lens) / len(words))
+    char_per_sent = round(sum(chars_in_sents) / len(sents))
+    
+    longest_sentence = max(sents)
+    longest_word = max(words)
+    
+    return word_per_sent, char_per_word, char_per_sent, longest_sentence, longest_word
 
-def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=False):
-    if manual:
-        print("\nNLTK manual Descriptive Statistics")
-        print("Number of characters:", len(chars))
-        print("Number of words:", len(words))
-        print("Number of sentences:", len(sents))
-        min_char_per_token, max_char_per_token, avg_char_per_token = (
-            min(len(word) for word in words),
-            max(len(word) for word in words),
-            round(sum(len(word) for word in words) / len(words)),
-        )
-        print(
-            "Minimum - Maximum - Average number of characters per token:",
-            min_char_per_token,
-            max_char_per_token,
-            avg_char_per_token,
-        )
-
-        min_word_per_sentence, max_word_per_sentence, avg_word_per_sentence = (
-            min(len(sent) for sent in sents),
-            max(len(sent) for sent in sents),
-            round(sum(len(sent) for sent in sents) / len(sents)),
-        )
-        print(
-            "Minimum - Maximum - Average number of words per sentence:",
-            min_word_per_sentence,
-            max_word_per_sentence,
-            avg_word_per_sentence,
-        )
-        (
-            min_sentences_per_document,
-            max_sentences_per_document,
-            avg_sentences_per_document,
-        ) = (
-            min(len(sent) for sent in sents),
-            max(len(sent) for sent in sents),
-            round(sum(len(sent) for sent in sents) / len(sents)),
-        )
-        print(
-            "Minimum - Maximum - Average number of sentences per document:",
-            min_sentences_per_document,
-            max_sentences_per_document,
-            avg_sentences_per_document,
-        )
-    else:
-        print("\nNLTK Descriptive Statistics")
-        words = nltk.word_tokenize(chars)
-        sents = nltk.sent_tokenize(chars)
-        print("Number of characters:", len(chars))
-        print("Number of words:", len(words))
-        print("Number of sentences:", len(sents))
-        min_char_per_token, max_char_per_token, avg_char_per_token = (
-            min(len(word) for word in words),
-            max(len(word) for word in words),
-            round(sum(len(word) for word in words) / len(words)),
-        )
-        print(
-            "Minimum - Maximum - Average number of characters per token:",
-            min_char_per_token,
-            max_char_per_token,
-            avg_char_per_token,
-        )
-        min_word_per_sentence, max_word_per_sentence, avg_word_per_sentence = (
-            min(len(sent) for sent in sents),
-            max(len(sent) for sent in sents),
-            round(sum(len(sent) for sent in sents) / len(sents)),
-        )
-        print(
-            "Minimum - Maximum - Average number of words per sentence:",
-            min_word_per_sentence,
-            max_word_per_sentence,
-            avg_word_per_sentence,
-        )
-        (
-            min_sentences_per_document,
-            max_sentences_per_document,
-            avg_sentences_per_document,
-        ) = (
-            min(len(sent) for sent in sents),
-            max(len(sent) for sent in sents),
-            round(sum(len(sent) for sent in sents) / len(sents)),
-        )
-        print(
-            "Minimum - Maximum - Average number of sentences per document:",
-            min_sentences_per_document,
-            max_sentences_per_document,
-            avg_sentences_per_document,
-        )
-
-
-def print_spacy_descriptive_statistics(doc, chars):
-    print("\nSpacy Descriptive Statistics")
-    words = [token for token in doc]
-    sents = [sent for sent in doc.sents]
+def custom(chars, words, sents):
     print("Number of characters:", len(chars))
     print("Number of words:", len(words))
     print("Number of sentences:", len(sents))
@@ -131,6 +51,7 @@ def print_spacy_descriptive_statistics(doc, chars):
         max_char_per_token,
         avg_char_per_token,
     )
+
     min_word_per_sentence, max_word_per_sentence, avg_word_per_sentence = (
         min(len(sent) for sent in sents),
         max(len(sent) for sent in sents),
@@ -143,23 +64,44 @@ def print_spacy_descriptive_statistics(doc, chars):
         avg_word_per_sentence,
     )
     (
-        min_sentences_per_document,
-        max_sentences_per_document,
-        avg_sentences_per_document,
+        min_char_per_sentence,
+        max_char_per_sentence,
+        avg_char_per_sentence,
     ) = (
-        min(len(sent) for sent in sents),
-        max(len(sent) for sent in sents),
-        round(sum(len(sent) for sent in sents) / len(sents)),
+        min(sum(len(word) for word in sent) for sent in sents),
+        max(sum(len(word) for word in sent) for sent in sents),
+        round(sum(sum(len(word) for word in sent) for sent in sents) / len(sents)),
     )
     print(
-        "Minimum - Maximum - Average number of sentences per document:",
-        min_sentences_per_document,
-        max_sentences_per_document,
-        avg_sentences_per_document,
+        "Minimum - Maximum - Average number of characters per sentence:",
+        min_char_per_sentence,
+        max_char_per_sentence,
+        avg_char_per_sentence,
     )
+    print("Longest sentence:", max([len(sent) for sent in sents]))
+    print("Longest word:", max([len(word) for word in words]))
+    print("Shortest sentence:", min([len(sent) for sent in sents]))
+    print("Shortest word:", min([len(word) for word in words]))
+
+def print_nltk_descriptive_statistics(chars, words=None, sents=None, manual=False):
+    if manual:
+        print("\n\t\tNLTK manual Descriptive Statistics")
+    else:
+        print("\n\t\tNLTK Descriptive Statistics")
+        words = nltk.word_tokenize(chars)
+        sents = nltk.sent_tokenize(chars)
+    
+    custom(chars, words, sents)
+
+def print_spacy_descriptive_statistics(doc, chars):
+    print("\n\t\tSpacy Descriptive Statistics")
+    words = [token for token in doc]
+    sents = [sent for sent in doc.sents]
+    custom(chars, words, sents)
 
 
 def compare_lowercase_lexicons(chars, words, doc):
+    print()
     # nltk manual
     nltk_lowercase_manual_lexicon = set([word.lower() for word in words])
     # nltk automatic

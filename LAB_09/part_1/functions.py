@@ -56,7 +56,6 @@ def get_dataloaders(lang, train_dataset, valid_dataset, test_dataset):
         train_dataset,
         batch_size=256,
         collate_fn=partial(collate_fn, pad_token=lang.word2id["<pad>"]),
-        shuffle=True,
     )
     valid_loader = DataLoader(
         valid_dataset,
@@ -228,15 +227,6 @@ class Parameters:
     VOCAB_LEN = lambda x: len(x.word2id)
     N_EPOCHS = 100
     PATIENCE = 5
-
-    params = {
-        'lstm': True,
-        'lr': [0.1, 0.01, 0.001],
-        'clip': [1, 5, 10],
-        'hid_size': [100, 200, 300],
-        'emb_size': [100, 200, 300],
-        # 'dropout': [0.0, 0.2, 0.5],
-    }
 
 def load_model(lstm=False, dropout=False, adamw=False):
     if lstm:

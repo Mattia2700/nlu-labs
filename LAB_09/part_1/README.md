@@ -2,7 +2,6 @@
 But if you want, here your can add your comments or anything that you want to share with us
 regarding the exercise.
 
-base.pt: 329.79766456671507
 300-400.pt: 337.4831632555491
 clip1.pt: 335.9944715616216
 clip10.pt: 364.52596515729954

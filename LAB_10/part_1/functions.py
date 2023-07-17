@@ -180,7 +180,7 @@ def collate_fn(data):
 def get_dataloaders(train_dataset, val_dataset, test_dataset):
     # Dataloader instantiation
     train_loader = DataLoader(
-        train_dataset, batch_size=128, collate_fn=collate_fn, shuffle=False
+        train_dataset, batch_size=128, collate_fn=collate_fn
     )
     val_loader = DataLoader(val_dataset, batch_size=64, collate_fn=collate_fn)
     test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
@@ -353,7 +353,7 @@ def load_model(bidirectional=False, dropout=False):
         model = torch.load('bin/bi-lr0.01.pt', map_location=Parameters.DEVICE)
     elif dropout:
         print("LSTM bidirectional model with dropout", end=" ", flush=True)
-        model = torch.load('bin/best_model.pt', map_location=Parameters.DEVICE)
+        model = torch.load('bin/bi-dropout0.3-lr0.01.pt', map_location=Parameters.DEVICE)
     model.eval()
     return model
 

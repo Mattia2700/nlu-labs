@@ -92,25 +92,24 @@ class Lang:
         if load:
             try:
                 if pad:
-                    with open("dataset/slot2id.json", "r") as f:
+                    with open("dataset/lab2id.json", "r") as f:
                         vocab = json.load(f)
                 else:
                     with open("dataset/intent2id.json", "r") as f:
                         vocab = json.load(f)
             except FileNotFoundError:
                 print("No vocab found, creating one...", flush=True)
-                vocab = self.lab2id(elements, load=False, pad=pad)
+                vocab = self.lab2id(elements, pad=pad, load=False)
             finally:
                 return vocab
         else:
-            vocab = {"pad": Parameters.PAD_TOKEN} if pad else {}
-            elements = set(elements)
-            input_ids = Parameters.TOKENIZER.convert_tokens_to_ids(elements)
-            for elem, input_id in zip(elements, input_ids):
-                vocab[elem] = input_id
-            # save dict to json
+            vocab = {}
             if pad:
-                with open("dataset/slot2id.json", "w") as f:
+                vocab["pad"] = Parameters.PAD_TOKEN
+            for elem in elements:
+                vocab[elem] = len(vocab)
+            if pad:
+                with open("dataset/lab2id.json", "w") as f:
                     json.dump(vocab, f)
             else:
                 with open("dataset/intent2id.json", "w") as f:
@@ -192,7 +191,7 @@ def collate_fn(data):
 def get_dataloaders(train_dataset, val_dataset, test_dataset):
     # Dataloader instantiation
     train_loader = DataLoader(
-        train_dataset, batch_size=128, collate_fn=collate_fn, shuffle=True
+        train_dataset, batch_size=128, collate_fn=collate_fn
     )
     val_loader = DataLoader(val_dataset, batch_size=64, collate_fn=collate_fn)
     test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
