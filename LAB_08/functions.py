@@ -15,20 +15,6 @@ from nltk.metrics.scores import precision, recall, f_measure, accuracy
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-try:
-    from nltk.corpus import senseval
-except ImportError:
-    nltk.download("senseval")
-    from nltk.corpus import senseval
-
-try:
-    from nltk.corpus import wordnet
-    from nltk.corpus import wordnet_ic
-except:
-    nltk.download("wordnet")
-    nltk.download("omw-1.4")
-    from nltk.corpus import wordnet
-
 MAPPING = {
     "interest_1": "interest.n.01",
     "interest_2": "interest.n.03",
@@ -40,18 +26,24 @@ MAPPING = {
 
 
 def get_data(collocational=False, encoded=True):
+    nltk.download("senseval", quiet=True)
+    nltk.download("wordnet", quiet=True)
+    nltk.download("omw-1.4", quiet=True)
+    nltk.download('stopwords', quiet=True)
+    nltk.download('averaged_perceptron_tagger', quiet=True)
+    nltk.download('wordnet_ic', quiet=True)
     if collocational:
         data = [
             collocational_features(inst, pos=True, ngram=True)
-            for inst in senseval.instances("interest.pos")
+            for inst in nltk.corpus.senseval.instances("interest.pos")
         ]
     else:
         data = [
             " ".join([t[0] for t in inst.context])
-            for inst in senseval.instances("interest.pos")
+            for inst in nltk.corpus.senseval.instances("interest.pos")
         ]
 
-    lbls = [inst.senses[0] for inst in senseval.instances("interest.pos")]
+    lbls = [inst.senses[0] for inst in nltk.corpus.senseval.instances("interest.pos")]
 
     if encoded:
         # encoding labels for multi-calss
@@ -219,10 +211,10 @@ def lesk_similarity(
 
 def preprocess(text):
     mapping = {
-        "NOUN": wordnet.NOUN,
-        "VERB": wordnet.VERB,
-        "ADJ": wordnet.ADJ,
-        "ADV": wordnet.ADV,
+        "NOUN": nltk.corpus.wordnet.NOUN,
+        "VERB": nltk.corpus.wordnet.VERB,
+        "ADJ": nltk.corpus.wordnet.ADJ,
+        "ADV": nltk.corpus.wordnet.ADV,
     }
     sw_list = stopwords.words("english")
 
@@ -268,7 +260,7 @@ def eval_lesks(sentences, labels):
 
         # since WordNet defines more senses, let's restrict predictions
         synsets = []
-        for ss in wordnet.synsets("interest", pos="n"):
+        for ss in nltk.corpus.wordnet.synsets("interest", pos="n"):
             if ss.name() in MAPPING.values():
                 defn = ss.definition()
                 tags = preprocess(defn)
@@ -311,7 +303,7 @@ def eval_lesks(sentences, labels):
 def get_top_sense_sim(context_sense, sense_list, similarity):
     # get top sense from the list of sense-definition tuples
     # assumes that words and definitions are preprocessed identically
-    semcor_ic = wordnet_ic.ic("ic-semcor.dat")
+    semcor_ic = nltk.corpus.wordnet_ic.ic("ic-semcor.dat")
     scores = []
     for sense in sense_list:
         ss = sense[0]
@@ -356,7 +348,7 @@ def get_sense_definitions(context):
     # input is text or list of strings
     lemma_tags = preprocess(context)
     # let's get senses for each
-    senses = [(w, wordnet.synsets(l, p)) for w, l, p in lemma_tags]
+    senses = [(w, nltk.corpus.wordnet.synsets(l, p)) for w, l, p in lemma_tags]
 
     # let's get their definitions
     definitions = []
